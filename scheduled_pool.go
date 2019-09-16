@@ -1,8 +1,8 @@
 package threadpool
 
 import (
-	"github.com/shettyh/threadpool/internal"
 	"sync"
+	"threadpool/internal"
 	"time"
 )
 
@@ -30,7 +30,7 @@ func NewScheduledThreadPool(noOfWorkers int) *ScheduledThreadPool {
 // createPool creates the workers threadpool
 func (stf *ScheduledThreadPool) createPool() {
 	for i := 0; i < stf.noOfWorkers; i++ {
-		worker := NewWorker(stf.workers, stf.closeHandle)
+		worker := NewWorker(stf.workers, stf.closeHandle,i)
 		worker.Start()
 	}
 

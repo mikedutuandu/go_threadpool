@@ -47,7 +47,7 @@ func (t *ThreadPool) Close() {
 // createPool creates the workers and start listening on the jobQueue
 func (t *ThreadPool) createPool() {
 	for i := 0; i < t.NoOfWorkers; i++ {
-		worker := NewWorker(t.workerPool, t.closeHandle)
+		worker := NewWorker(t.workerPool, t.closeHandle,i)
 		worker.Start()
 	}
 

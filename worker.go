@@ -5,25 +5,31 @@ type Worker struct {
 	jobChannel  chan interface{}
 	workerPool  chan chan interface{}
 	closeHandle chan bool
+	nameWorker int
 }
 
 // NewWorker creates the new worker
-func NewWorker(workerPool chan chan interface{}, closeHandle chan bool) *Worker {
-	return &Worker{workerPool: workerPool, jobChannel: make(chan interface{}), closeHandle: closeHandle}
+func NewWorker(workerPool chan chan interface{}, closeHandle chan bool,nameWorker int) *Worker {
+	return &Worker{workerPool: workerPool, jobChannel: make(chan interface{}), closeHandle: closeHandle,nameWorker:nameWorker}
 }
 
 // Start starts the worker by listening to the job channel
 func (w Worker) Start() {
 	go func() {
+		//Put the worker to the worker threadpool
+		//println("Put the worker ",w.nameWorker," to the worker threadpool")
+		w.workerPool <- w.jobChannel
 		for {
-			// Put the worker to the worker threadpool
-			w.workerPool <- w.jobChannel
 
 			select {
 			// Wait for the job
 			case job := <-w.jobChannel:
-				// Got the job
+				println("Worker ",w.nameWorker," run job:",job)
+				// Got the job then this worker is busy
 				w.executeJob(job)
+				// After worker done job then notify to thread free and add to threadpool again for get another job
+				//println("Put the worker ",w.nameWorker," to the worker threadpool")
+				w.workerPool <- w.jobChannel
 			case <-w.closeHandle:
 				// Exit the go routine when the closeHandle channel is closed
 				return
